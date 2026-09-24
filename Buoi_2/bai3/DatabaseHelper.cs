@@ -5,13 +5,13 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace QuanLyDiem
+namespace QuanLyKinhDoanh
 {
     public static class DatabaseHelper
     {
         private static string serverConfigFile = "server.txt";
-        public static string ServerName = ".";
-        public static string DatabaseName = "QL_Diem";
+        public static string ServerName = @".\SQLEXPRESS";
+        public static string DatabaseName = "QLKD";
 
         static DatabaseHelper()
         {
@@ -48,6 +48,31 @@ namespace QuanLyDiem
                 }
             }
             catch { }
+
+            // Tự động kiểm tra nếu ServerName hiện tại không kết nối được thì thử các instance phổ biến
+            TuDongPhatHienServer();
+        }
+
+        private static void TuDongPhatHienServer()
+        {
+            string[] danhSachThu = new string[] { ServerName, @".\SQLEXPRESS", ".", @"localhost\SQLEXPRESS", "localhost", @"(localdb)\MSSQLLocalDB" };
+            foreach (string sv in danhSachThu)
+            {
+                if (string.IsNullOrEmpty(sv)) continue;
+                string testConnStr = string.Format("Data Source={0};Initial Catalog=master;Integrated Security=True;Connect Timeout=2;", sv);
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(testConnStr))
+                    {
+                        conn.Open();
+                        // Tìm thấy server kết nối được
+                        ServerName = sv;
+                        try { File.WriteAllText(serverConfigFile, sv); } catch { }
+                        return;
+                    }
+                }
+                catch { }
+            }
         }
 
         public static void LuuCauHinhServer(string newServer)
@@ -81,17 +106,16 @@ namespace QuanLyDiem
         public static bool TaoCSDLVaDuLieuMau(out string thongBao)
         {
             thongBao = string.Empty;
-            string sqlFile = "QuanLyDiem.sql";
+            string sqlFile = "QLKD.sql";
             if (!File.Exists(sqlFile))
             {
-                thongBao = "Không tìm thấy file QuanLyDiem.sql trong thư mục ứng dụng!";
+                thongBao = "Không tìm thấy file QLKD.sql trong thư mục ứng dụng!";
                 return false;
             }
 
             try
             {
                 string script = File.ReadAllText(sqlFile);
-                // Tách script theo lệnh GO
                 string[] commands = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
                 using (SqlConnection masterConn = new SqlConnection(MasterConnectionString))
@@ -111,12 +135,12 @@ namespace QuanLyDiem
                     }
                 }
 
-                thongBao = "Khởi tạo CSDL 'QL_Diem' và nạp dữ liệu mẫu thành công!";
+                thongBao = "Khởi tạo CSDL 'QLKD' và nạp dữ liệu mẫu 7 bảng thành công!";
                 return true;
             }
             catch (Exception ex)
             {
-                thongBao = "Lỗi khi khởi tạo CSDL: " + ex.Message;
+                thongBao = "Lỗi khi khởi tạo CSDL QLKD: " + ex.Message;
                 return false;
             }
         }

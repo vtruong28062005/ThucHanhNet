@@ -94,15 +94,11 @@ CREATE TABLE tblDiem (
 
     -- Ràng buộc khóa ngoại: Mamon tham chiếu tới tblMonHoc(Mamon)
     CONSTRAINT FK_tblDiem_tblMonHoc FOREIGN KEY (Mamon)
-        REFERENCES tblMonHoc(Mamon)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        REFERENCES tblMonHoc(Mamon),
 
     -- Ràng buộc khóa ngoại: MaSV tham chiếu tới tblSinhVien(MaSV)
     CONSTRAINT FK_tblDiem_tblSinhVien FOREIGN KEY (MaSV)
-        REFERENCES tblSinhVien(MaSV)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        REFERENCES tblSinhVien(MaSV),
 
     -- Ràng buộc kiểm tra điểm phải trong thang điểm từ 0 đến 10
     CONSTRAINT CHK_tblDiem_Diem CHECK (Diem >= 0.0 AND Diem <= 10.0)

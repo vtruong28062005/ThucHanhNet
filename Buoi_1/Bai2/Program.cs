@@ -196,7 +196,7 @@ namespace BaiTapSinhVien
                 XuatDanhSach(dsNamDinh, string.Format("KẾT QUẢ: TÌM THẤY {0} HỌC SINH QUÊ NAM ĐỊNH", dsNamDinh.Count));
             }
             else
-            // {
+            {
                 Console.WriteLine("=> Không có học sinh nào trong danh sách có quê quán ở \"Nam Định\".");
             }
         }
